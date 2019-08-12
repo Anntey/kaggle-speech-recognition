@@ -1,11 +1,11 @@
 # Kaggle: TensorFlow Speech Recognition Challenge
 
-Data: 65,000 1 second clips of voice commands  one-second .wav audio files
+Data: 65 000 one-second clips of voice commands
 
-Task: 1 of 12 categories
+Task: classify each clip to one of 12 categories
 
-Evaluation: Multiclass Accuracy
+Evaluation: multiclass Accuracy
 
 Solution: 2D-CNN with spectograms as inputs
 
-Success: 0.81
+Success: 0.81 accuracy
