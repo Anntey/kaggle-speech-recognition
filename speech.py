@@ -1,10 +1,3 @@
-
-from tensorflow.compat.v1 import ConfigProto
-from tensorflow.compat.v1 import InteractiveSession
-config = ConfigProto()
-config.gpu_options.allow_growth = True
-session = InteractiveSession(config = config)
-
 #############
 # Libraries #
 #############
@@ -139,8 +132,8 @@ x = Conv2D(8, kernel_size = (2, 2), activation = "relu")(x)
 x = BatchNormalization()(x)
 x = MaxPooling2D(pool_size = (2, 2))(x)
 x = Dropout(rate = 0.2)(x)
-x = Conv2D(16, kernel_size = (3, 3), activation = "relu")(x) # (3, 3)
-x = Conv2D(16, kernel_size = (3, 3), activation = "relu")(x) # (3, 3)
+x = Conv2D(16, kernel_size = (3, 3), activation = "relu")(x)
+x = Conv2D(16, kernel_size = (3, 3), activation = "relu")(x)
 x = BatchNormalization()(x)
 x = MaxPooling2D(pool_size = (2, 2))(x)
 x = Dropout(rate = 0.2)(x)
@@ -171,8 +164,6 @@ model.compile(
         metrics = ["accuracy"]
 )
 
-model.summary()
-
 #############
 # Fit model #
 #############
@@ -198,7 +189,7 @@ fit_log = model.fit(
         callbacks = callbacks_list
 )
 
-model.save("cnn.model")
+del x_train, y_train
 
 ##############
 # Evaluation #
@@ -241,8 +232,6 @@ def test_gen(batch_size):
         yield filenames, imgs
         
     raise StopIteration()
-    
-del x_train, y_train
 
 filenames = []
 labels = []
