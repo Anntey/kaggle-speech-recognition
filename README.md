@@ -8,4 +8,4 @@ Evaluation: multiclass accuracy
 
 Solution: 2D-CNN with spectograms as inputs
 
-Success: 0.81 accuracy
+Success: 0.81 multiclass accuracy
