@@ -101,7 +101,7 @@ for label, filename in zip(labels_train, filenames_train):
         x_train.append(specgram)
         
 x_train = np.array(x_train)
-x_train = np.expand_dims(x_train, axis = 3) # reshape to (n, h w, 1)
+x_train = np.expand_dims(x_train, axis = 3) # reshape to (n, h, w, 1)
 
 y_train = encode_labels(y_train) 
 label_indices = y_train.columns.values # need this later
