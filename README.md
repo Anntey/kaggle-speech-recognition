@@ -6,7 +6,7 @@ Task: classify each clip to one of 12 categories
 
 Evaluation: multiclass accuracy
 
-Solution: 2D-CNN with spectograms as inputs
+Solution: 2D-CNN with log-spectograms as inputs
 
 Success: 0.81 multiclass accuracy
 
