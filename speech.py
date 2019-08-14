@@ -111,12 +111,12 @@ y_train = np.array(y_train.values)
 # Visualization #
 #################
 
-import random
-indices, locus = random.sample(range(0, len(x_train.shape[0])), 9), range(0, 9)
+from random import sample
+indices, positions = sample(range(0, len(x_train.shape[0])), 9), range(0, 9)
 
 plt.figure(figsize = (10, 10))
-for i, locus in zip(indices, locus):
-    plt.subplot(3, 3, locus)
+for i, pos in zip(indices, positions):
+    plt.subplot(3, 3, pos)
     plt.title(labels_train[i])    
     plt.imshow(x_train[i].squeeze().T, aspect = "auto", origin = "lower") 
     plt.axis("off")
