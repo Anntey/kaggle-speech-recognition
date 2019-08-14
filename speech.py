@@ -1,17 +1,18 @@
+
 #############
 # Libraries #
 #############
 
 import re
+import random
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from glob import glob
-from re import match
 from scipy.io import wavfile
 from scipy.signal import spectrogram
 from keras.models import Model
-from keras.optimizers import Adam, SGD
+from keras.optimizers import Adam
 from keras.callbacks import CSVLogger
 from keras.layers import Conv2D, Dense, Input, Flatten, Dropout, MaxPooling2D, BatchNormalization
 from sklearn.model_selection import train_test_split
@@ -31,11 +32,11 @@ test_path = "./input/test/test/audio/"
 # Utility functions #
 #####################
 
-def log_spectrogram(audio, sample_rate = 16000, window_size = 20, step_size = 10, eps = 1e-10): # why transpose ??????????????????
+def log_spectrogram(audio, sample_rate = 16000, window_size = 20, step_size = 10, eps = 1e-10):
     nperseg = int(round(window_size * sample_rate / 1e3))
     noverlap = int(round(step_size * sample_rate / 1e3))
     freqs, times, spec = spectrogram(audio, fs = sample_rate, window = "hann", nperseg = nperseg, noverlap = noverlap, detrend = False)
-    return freqs, times, np.log(spec.T.astype(np.float32) + eps)
+    return np.log(spec.T.astype(np.float32) + eps)
 
 def pad_audio(samples): # pad audios less than 16000 with 0s
     if len(samples) >= sample_rate:       
@@ -65,60 +66,58 @@ def encode_labels(orig_labels): # transform labels into dummies
 # Prepare training data #
 #########################
 
-filepaths_train = glob(train_path + r"*/*" + "wav")
+filepaths_train = glob(train_path + r"*/*wav")
   
 labels_train = []
-pattern_label = r".+/(\w+)/\w+\." + extension + "$" # regex label
 
 for filepath in filepaths_train:
-    label = match(pattern_label, filepath)
+    label = re.match(r".+/(\w+)/\w+\.wav$", filepath) # regex label
     if label:
         labels_train.append(label.group(1)) # append capture group
 
 filenames_train = []            
-pattern_filename = r".+/(\w+\." + "wav" + ")$" # regex filename
 
 for filepath in filepaths_train:
-    filename = match(pattern_filename, filepath)
+    filename = re.match(r".+/(\w+\.wav)$", filepath) # regex filename
     if filename:
         filenames_train.append(filename.group(1)) # append capture group
-            
+                    
 y_train = []
 x_train = []
 
 for label, filename in zip(labels_train, filenames_train):
-    _, sample = wavfile.read(train_path + label + "/" + filename) # "/" + sample_rate
-    sample = pad_audio(samples)
+    _, sample = wavfile.read(train_path + "/" + label + "/" + filename)
+    sample = sample.astype(np.float64)
+    sample = pad_audio(sample)
     
     if len(sample) > 16000:
-        n_samples = chop_audio(samples)
+        n_samples = chop_audio(sample)
     else:
-        n_samples = [sample] # list
+        n_samples = [sample]
         
     for sample in n_samples:
-        _, _, specgram = log_spectrogram(sample)
+        specgram = log_spectrogram(sample)
         y_train.append(label)
         x_train.append(specgram)
         
 x_train = np.array(x_train)
-x_train = np.expand_dims(x_train, axis = 3) # reshape to (n, 99, 161, 1)
+x_train = np.expand_dims(x_train, axis = 3) # reshape to (n, h w, 1)
 
 y_train = encode_labels(y_train) 
-label_index = y_train.columns.values # used by pandas to create dummy values, we need it for later use.
+label_indices = y_train.columns.values # need this later
 y_train = np.array(y_train.values)
 
 #################
 # Visualization #
 #################
 
-from random import sample
-indices, positions = sample(range(0, len(x_train.shape[0])), 9), range(0, 9)
+indices, positions = random.sample(range(1, x_train.shape[0]), 9), range(1, 10)
 
 plt.figure(figsize = (10, 10))
 for i, pos in zip(indices, positions):
     plt.subplot(3, 3, pos)
-    plt.title(labels_train[i])    
-    plt.imshow(x_train[i].squeeze().T, aspect = "auto", origin = "lower") 
+    plt.title(label_indices[np.argmax(y_train[i])])  
+    plt.imshow(x_train[i].T.squeeze(), aspect = "auto", origin = "lower") 
     plt.axis("off")
 
 #################
@@ -128,25 +127,29 @@ for i, pos in zip(indices, positions):
 inp = Input(shape = (99, 161, 1))
 
 x = BatchNormalization()(inp)
-x = Conv2D(8, (2, 2), activation = "relu")(x)
-x = Conv2D(8, (2, 2), activation = "relu")(x)
+x = Conv2D(8, 2, activation = "relu")(x)
 x = BatchNormalization()(x)
-x = MaxPooling2D((2, 2))(x)
+x = Conv2D(8, 2, activation = "relu")(x)
+x = BatchNormalization()(x)
+x = MaxPooling2D(2)(x)
 x = Dropout(0.2)(x)
-x = Conv2D(16, (3, 3), activation = "relu")(x)
-x = Conv2D(16, (3, 3), activation = "relu")(x)
+x = Conv2D(16, 3, activation = "relu")(x)
 x = BatchNormalization()(x)
-x = MaxPooling2D((2, 2))(x)
+x = Conv2D(16, 3, activation = "relu")(x)
+x = BatchNormalization()(x)
+x = MaxPooling2D(2)(x)
 x = Dropout(0.2)(x)
-x = Conv2D(32, (3, 3), activation = "relu")(x)
-x = Conv2D(32, (3, 3), activation = "relu")(x)
+x = Conv2D(32, 3, activation = "relu")(x)
 x = BatchNormalization()(x)
-x = MaxPooling2D((2, 2))(x)
+x = Conv2D(32, 3, activation = "relu")(x)
+x = BatchNormalization()(x)
+x = MaxPooling2D(2)(x)
 x = Dropout(0.2)(x)
-x = Conv2D(64, (3, 3), activation = "relu")(x)
-x = Conv2D(64, (3, 3), activation = "relu")(x)
+x = Conv2D(64, 3, activation = "relu")(x)
+x = BatchNormalization()(x) 
+x = Conv2D(64, 3, activation = "relu")(x)
 x = BatchNormalization()(x)
-x = MaxPooling2D((2, 2))(x)
+x = MaxPooling2D(2)(x)
 x = Flatten()(x)
 x = Dropout(0.5)(x)
 x = Dense(512, activation = "relu")(x)
@@ -159,9 +162,8 @@ outp = Dense(12, activation = "softmax")(x)
 model = Model(inp, outp)
 
 model.compile(
-        loss = "binary_crossentropy", # categorical ????????????????
+        loss = "categorical_crossentropy",
         optimizer = Adam(lr = 1e-3),
-#       optimizer = SGD(lr = 1e-3, decay = 1e-4, momentum = 0.9, nesterov = True),
         metrics = ["accuracy"]
 )
 
@@ -215,16 +217,16 @@ def test_gen(batch_size):
             filenames = []
             
         i = i + 1        
-        rate, samples = wavfile.read(path)
-        samples = pad_audio(samples)
-        _, _, specgram = log_spectrogram(samples)
+        _, sample = wavfile.read(path)
+        sample = pad_audio(sample)
+        specgram = log_spectrogram(sample)
         imgs.append(specgram)
         filenames.append(path.split("/")[-1]) # split path and get filename
         
         if i == batch_size: # continue until batch size
             i = 0
             imgs = np.array(imgs)
-            imgs = np.expand_dims(imgs, axis = 3) #2???????
+            imgs = np.expand_dims(imgs, axis = 3) # reshape (batch_size, h, w) to (batch_size, h, w, 1)
             yield filenames, imgs
             
     if i < batch_size: # leftover batch
@@ -237,12 +239,12 @@ def test_gen(batch_size):
 filenames = []
 labels = []
 
-for name, img in test_gen(batch_size = 64): # miten toimii???????
-    pred = model.predict(img)
-    pred = np.argmax(pred, axis = 1)
-    pred = list(label_index[i] for i in pred)
-    filenames.extend(name)
-    labels.extend(pred)
+for names, imgs in test_gen(batch_size = 64):
+    preds = model.predict(imgs)
+    preds = np.argmax(preds, axis = 1) # get index of highest confidence prediction
+    preds = label_indices[preds] # get corresponding label string
+    filenames.extend(names) 
+    labels.extend(preds) 
 
 test_df = pd.DataFrame({"fname": filenames, "label": labels})
 test_df.to_csv("submission.csv", index = False)
