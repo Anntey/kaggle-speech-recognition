@@ -8,6 +8,6 @@ Evaluation: multiclass accuracy
 
 Solution: 2D-CNN with log-spectograms as inputs
 
-Success: 0.81 multiclass accuracy
+Success: 0.812 multiclass accuracy
 
 ![](spectrograms.png)
