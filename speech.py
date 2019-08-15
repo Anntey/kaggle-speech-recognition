@@ -35,7 +35,7 @@ test_path = "./input/test/test/audio/"
 def log_spectrogram(audio, sample_rate = 16000, window_size = 20, step_size = 10, eps = 1e-10):
     nperseg = int(round(window_size * sample_rate / 1e3))
     noverlap = int(round(step_size * sample_rate / 1e3))
-    freqs, times, spec = spectrogram(audio, fs = sample_rate, window = "hann", nperseg = nperseg, noverlap = noverlap, detrend = False)
+    _, _, spec = spectrogram(audio, fs = sample_rate, window = "hann", nperseg = nperseg, noverlap = noverlap, detrend = False)
     return np.log(spec.T.astype(np.float32) + eps)
 
 def pad_audio(samples): # pad audios less than 16000 with 0s
@@ -207,7 +207,7 @@ fit_log_df[["loss", "val_loss"]].plot()
 ##############
 
 def test_gen(batch_size):
-    filepaths = glob(test_path + "*wav")
+    filepaths = glob(test_path + r"*wav")
     i = 0
     
     for path in filepaths:
