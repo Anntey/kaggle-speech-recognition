@@ -46,8 +46,8 @@ def pad_audio(samples): # pad audios less than 16000 with 0s
 
 def chop_audio(samples, sample_rate = 16000, n = 10000): # chop audios larger than 16000 (background noise wavs) to 16000
     for i in range(n):
-        beg = np.random.randint(0, len(samples) - sample_rate)
-        yield samples[beg: beg + sample_rate]
+        rand_i = np.random.randint(0, len(samples) - sample_rate)
+        yield samples[rand_i:rand_i + sample_rate]
 
 def encode_labels(orig_labels): # transform labels into dummies
     new_labels = []
