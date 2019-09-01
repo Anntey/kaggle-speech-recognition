@@ -1,4 +1,4 @@
-# Kaggle: TensorFlow Speech Recognition Challenge
+# Kaggle: TensorFlow Speech Recognition Challenge ([link](https://www.kaggle.com/c/denoising-dirty-documents/overview))
 
 Data: 65 000 one-second clips of voice commands
 
