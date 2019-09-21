@@ -1,4 +1,4 @@
-# Kaggle: TensorFlow Speech Recognition Challenge ([link](https://www.kaggle.com/c/tensorflow-speech-recognition-challenge/overview))
+# Kaggle: TF Speech Recognition Challenge ([link](https://www.kaggle.com/c/tensorflow-speech-recognition-challenge/overview))
 
 Data: 65 000 one-second clips of voice commands
 
