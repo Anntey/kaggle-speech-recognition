@@ -1,13 +1,13 @@
 # Kaggle: TF Speech Recognition Challenge ([link](https://www.kaggle.com/c/tensorflow-speech-recognition-challenge/overview))
 
-Data: 65 000 one-second clips of voice commands
+__Data__: 65 000 one-second clips of voice commands
 
-Task: classify each clip to one of 12 categories
+__Task__: classify each clip to one of 12 categories
 
-Evaluation: Multiclass Accuracy
+__Evaluation__: Multiclass Accuracy
 
-Solution: 2D-CNN with log-spectograms as inputs
+__Solution__: 2D-CNN with log-spectograms as inputs
 
-Success: 0.812 Multiclass Accuracy
+__Success__: 0.812 Multiclass Accuracy
 
 ![](spectrograms.png)
